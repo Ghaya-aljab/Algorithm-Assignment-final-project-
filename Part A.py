@@ -3,7 +3,6 @@ import random
 from datetime import datetime, timedelta
 from enum import Enum
 
-
 class Content(Enum):
     LIFE = "Just living life #love"
     WORLD = "What a wonderful world #travel #blessed"
@@ -17,7 +16,6 @@ class Content(Enum):
     def get_random():
         return random.choice(list(Content)).value
 
-
 class Post:
     def __init__(self, datetime, content, author, views):
         self.datetime = datetime
@@ -28,27 +26,27 @@ class Post:
     def __repr__(self):
         return f"({self.datetime}, '{self.content}', by {self.author}, views: {self.views})"
 
-
 class TreeNode:
     def __init__(self, post):
         self.post = post
         self.left = None
         self.right = None
 
-
 class SocialMedia:
     def __init__(self):
         self.posts_by_date = {}
-        self.posts_by_datetime = {}  # New hash table for posts by datetime
+        self.posts_by_datetime = {}
         self.root = None
         self.max_heap = []
         self.min_heap = []
 
     def add_post(self, post):
+        if post.datetime in self.posts_by_datetime:
+            raise ValueError("A post with the same datetime already exists.")
         author = f"user {len(self.posts_by_date) + 1}"
         post.author = author
         self.posts_by_date.setdefault(post.datetime.year, {}).setdefault(post.datetime.month, []).append(post)
-        self.posts_by_datetime[post.datetime] = post  # Add post to hash table
+        self.posts_by_datetime[post.datetime] = post
         self._insert_bst(post)
         heapq.heappush(self.max_heap, (-post.views, post.datetime, post))
         heapq.heappush(self.min_heap, (post.views, post.datetime, post))
@@ -75,46 +73,50 @@ class SocialMedia:
         if self.max_heap:
             return self.max_heap[0][2]
         else:
-            return "No more posts to display."
+            raise IndexError("No more posts to display.")
 
     def get_least_viewed_post(self):
         if self.min_heap:
             return heapq.heappop(self.min_heap)[2]
         else:
-            return "No more posts to display."
+            raise IndexError("No more posts to display.")
 
     def view_posts_by_popularity(self):
-        if self.max_heap:
-            while self.max_heap:
-                print(heapq.heappop(self.max_heap)[2])
-        else:
-            print("No more posts to display.")
+        if not self.max_heap:
+            raise IndexError("No more posts to display.")
+        while self.max_heap:
+            print(heapq.heappop(self.max_heap)[2])
 
     def view_posts_by_views(self):
-        if self.min_heap:
-            while self.min_heap:
-                print(heapq.heappop(self.min_heap)[2])
-        else:
-            print("No more posts to display.")
+        if not self.min_heap:
+            raise IndexError("No more posts to display.")
+        while self.min_heap:
+            print(heapq.heappop(self.min_heap)[2])
 
     def get_post_by_datetime(self, target_datetime):
-        return self.posts_by_datetime.get(target_datetime, None)  # Retrieve post from hash table when adding the post
+        post = self.posts_by_datetime.get(target_datetime, None)
+        if not post:
+            raise KeyError("No post found for the specified datetime.")
+        return post
 
     def get_posts_in_range(self, start_year, end_year):
+        if start_year > end_year:
+            raise ValueError("Start year must be less than or equal to end year.")
         posts_in_range = []
-        for year in range(int(start_year), int(end_year) + 1):
+        for year in range(start_year, end_year + 1):
             if year in self.posts_by_date:
                 for month in self.posts_by_date[year]:
                     posts_in_range.extend(self.posts_by_date[year][month])
         return posts_in_range
 
     def get_random_post_by_year_month(self, year, month):
-        if int(year) in self.posts_by_date and int(month) in self.posts_by_date[int(year)]:
-            posts_in_month = self.posts_by_date[int(year)][int(month)]
-            if posts_in_month:
-                return random.choice(posts_in_month)
-        return None
-
+        try:
+            posts_in_month = self.posts_by_date[year][month]
+        except KeyError:
+            raise KeyError("No posts found for the specified year and month.")
+        if not posts_in_month:
+            raise ValueError("No posts available in the specified month.")
+        return random.choice(posts_in_month)
 
 def generate_random_datetime():
     start = datetime.strptime('2020-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
@@ -122,24 +124,28 @@ def generate_random_datetime():
     random_datetime = start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
     return random_datetime
 
-
 def generate_random_views():
-    return random.randint(100, 100000)  # Generate views between 100 and 100,000
-
+    return random.randint(100, 100000)
 
 def main():
-    num_posts = get_int_input("How many posts do you want to generate? ")
     sm = SocialMedia()
-    print("Social Media Post Manager")
-    print(f"Initializing with {num_posts} random posts...")
-    for _ in range(num_posts):
-        dt = generate_random_datetime()
-        content = Content.get_random()
-        views = generate_random_views()
-        post = Post(dt, content, "", views)
-        sm.add_post(post)
-        print(f"Added Post: {post}")
+    try:
+        num_posts = get_int_input("How many posts do you want to generate? ")
+        print("Social Media Post Manager")
+        print(f"Initializing with {num_posts} random posts...")
+        for _ in range(num_posts):
+            dt = generate_random_datetime()
+            content = Content.get_random()
+            views = generate_random_views()
+            post = Post(dt, content, "", views)
+            sm.add_post(post)
+            print(f"Added Post: {post}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
+    menu(sm)
+
+def menu(sm):
     while True:
         print("\nMenu:")
         print("1. Add Random Posts")
@@ -149,57 +155,55 @@ def main():
         print("5. View Posts")
         print("6. Exit")
         choice = input("Choose an option: ")
-
-        if choice == '1':
-            num_posts = get_int_input("How many posts do you want to generate? ")
-            for _ in range(num_posts):
-                dt = generate_random_datetime()
-                content = Content.get_random()
-                views = generate_random_views()
-                post = Post(dt, content, "", views)
-                sm.add_post(post)
-                print(f"Added Post: {post}")
-
-        elif choice == '2':
-            target_datetime = get_datetime_input()
-            post = sm.get_post_by_datetime(target_datetime)
-            if post:
+        try:
+            if choice == '1':
+                num_posts = get_int_input("How many posts do you want to generate? ")
+                for _ in range(num_posts):
+                    dt = generate_random_datetime()
+                    content = Content.get_random()
+                    views = generate_random_views()
+                    post = Post(dt, content, "", views)
+                    sm.add_post(post)
+                    print(f"Added Post: {post}")
+            elif choice == '2':
+                target_datetime = get_datetime_input()
+                post = sm.get_post_by_datetime(target_datetime)
                 print("Retrieved Post:", post)
+            elif choice == '3':
+                start_year = get_int_input("Start Year (YYYY): ")
+                end_year = get_int_input("End Year (YYYY): ")
+                posts = sm.get_posts_in_range(start_year, end_year)
+                print("Posts in Range:", posts)
+            elif choice == '4':
+                print("Most Viewed Post:", sm.get_most_viewed_post())
+            elif choice == '5':
+                view_posts_submenu(sm)
+            elif choice == '6':
+                print("Exiting program.")
+                break
             else:
-                print("No post found for the specified datetime.")
+                print("Invalid choice, please try again.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
-        elif choice == '3':
-            start_year = get_int_input("Start Year (YYYY): ")
-            end_year = get_int_input("End Year (YYYY): ")
-            posts = sm.get_posts_in_range(start_year, end_year)
-            print("Posts in Range:", posts)
-
-        elif choice == '4':
-            print("Most Viewed Post:", sm.get_most_viewed_post())
-
-        elif choice == '5':
-            while True:
-                print("\nView Posts Options:")
-                print("1. View Posts from Highest to Lowest Views")
-                print("2. View Posts from Lowest to Highest Views")
-                print("3. Back to Main Menu")
-                view_choice = input("Choose an option: ")
-
-                if view_choice == '1':
-                    sm.view_posts_by_popularity()
-                elif view_choice == '2':
-                    sm.view_posts_by_views()
-                elif view_choice == '3':
-                    break
-                else:
-                    print("Invalid choice, please try again.")
-
-        elif choice == '6':
-            print("Exiting program.")
-            break
-        else:
-            print("Invalid choice, please try again.")
-
+def view_posts_submenu(sm):
+    while True:
+        print("\nView Posts Options:")
+        print("1. View Posts from Highest to Lowest Views")
+        print("2. View Posts from Lowest to Highest Views")
+        print("3. Back to Main Menu")
+        view_choice = input("Choose an option: ")
+        try:
+            if view_choice == '1':
+                sm.view_posts_by_popularity()
+            elif view_choice == '2':
+                sm.view_posts_by_views()
+            elif view_choice == '3':
+                break
+            else:
+                print("Invalid choice, please try again.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 def get_int_input(prompt):
     while True:
@@ -208,19 +212,14 @@ def get_int_input(prompt):
         except ValueError:
             print("Invalid input. Please enter an integer.")
 
-
 def get_datetime_input():
     while True:
         try:
-            year_month_day = input("Enter the date (YYYY-MM-DD): ")
-            year, month, day = map(int, year_month_day.split('-'))
-            hour = get_int_input("Enter the hour (0-23): ")
-            minute = get_int_input("Enter the minute (0-59): ")
-            second = get_int_input("Enter the second (0-59): ")
-            return datetime(year, month, day, hour, minute, second)
+            date_str = input("Enter the date (YYYY-MM-DD): ")
+            time_str = input("Enter the time (HH:MM:SS): ")
+            return datetime.strptime(f"{date_str}T{time_str}", "%Y-%m-%dT%H:%M:%S")
         except ValueError:
             print("Invalid input. Please enter valid date and time values.")
-
 
 if __name__ == "__main__":
     main()
