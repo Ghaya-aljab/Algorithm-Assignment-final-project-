@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta
 from enum import Enum
 
+
 class Content(Enum):
     LIFE = "Just living life #love"
     WORLD = "What a wonderful world #travel #blessed"
@@ -16,6 +17,7 @@ class Content(Enum):
     def get_random():
         return random.choice(list(Content)).value
 
+
 class Post:
     def __init__(self, datetime, content, author, views):
         self.datetime = datetime
@@ -26,11 +28,13 @@ class Post:
     def __repr__(self):
         return f"({self.datetime}, '{self.content}', by {self.author}, views: {self.views})"
 
+
 class TreeNode:
     def __init__(self, post):
         self.post = post
         self.left = None
         self.right = None
+
 
 class SocialMedia:
     def __init__(self):
@@ -111,17 +115,20 @@ class SocialMedia:
                 return random.choice(posts_in_month)
         return None
 
+
 def generate_random_datetime():
     start = datetime.strptime('2020-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
     end = datetime.now()
     random_datetime = start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
     return random_datetime
 
+
 def generate_random_views():
-    return int(random.weibullvariate(1.5, 2) * 1000)
+    return random.randint(100, 100000)  # Generate views between 100 and 100,000
+
 
 def main():
-    num_posts = int(input("How many posts do you want to generate? "))
+    num_posts = get_int_input("How many posts do you want to generate? ")
     sm = SocialMedia()
     print("Social Media Post Manager")
     print(f"Initializing with {num_posts} random posts...")
@@ -144,7 +151,7 @@ def main():
         choice = input("Choose an option: ")
 
         if choice == '1':
-            num_posts = int(input("How many posts do you want to generate? "))
+            num_posts = get_int_input("How many posts do you want to generate? ")
             for _ in range(num_posts):
                 dt = generate_random_datetime()
                 content = Content.get_random()
@@ -154,36 +161,16 @@ def main():
                 print(f"Added Post: {post}")
 
         elif choice == '2':
-            year = input("Enter the year to retrieve a post from: ")
-            month = input("Enter the month (1-12) to retrieve a post from: ")
-            specific_time = input("Do you know a specific time for the post? (yes/no): ").lower()
-
-            if specific_time == 'yes':
-                try:
-                    day = int(input("Enter the day of the month: "))
-                    hour = int(input("Enter the hour (0-23): "))
-                    minute = int(input("Enter the minute (0-59): "))
-                    second = int(input("Enter the second (0-59): "))
-
-                    target_datetime = datetime(int(year), int(month), day, hour, minute, second)
-                    post = sm.get_post_by_datetime(target_datetime)
-                    if post:
-                        print("Retrieved Post:", post)
-                    else:
-                        print("No post found for the specified datetime.")
-                except ValueError:
-                    print("Invalid input. Please enter valid numerical values.")
+            target_datetime = get_datetime_input()
+            post = sm.get_post_by_datetime(target_datetime)
+            if post:
+                print("Retrieved Post:", post)
             else:
-                # Retrieve a random post under the same year and month
-                post = sm.get_random_post_by_year_month(year, month)
-                if post:
-                    print("Retrieved Random Post:", post)
-                else:
-                    print("No posts found for the specified year and month.")
+                print("No post found for the specified datetime.")
 
         elif choice == '3':
-            start_year = input("Start Year (YYYY): ")
-            end_year = input("End Year (YYYY): ")
+            start_year = get_int_input("Start Year (YYYY): ")
+            end_year = get_int_input("End Year (YYYY): ")
             posts = sm.get_posts_in_range(start_year, end_year)
             print("Posts in Range:", posts)
 
@@ -212,6 +199,28 @@ def main():
             break
         else:
             print("Invalid choice, please try again.")
+
+
+def get_int_input(prompt):
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Invalid input. Please enter an integer.")
+
+
+def get_datetime_input():
+    while True:
+        try:
+            year_month_day = input("Enter the date (YYYY-MM-DD): ")
+            year, month, day = map(int, year_month_day.split('-'))
+            hour = get_int_input("Enter the hour (0-23): ")
+            minute = get_int_input("Enter the minute (0-59): ")
+            second = get_int_input("Enter the second (0-59): ")
+            return datetime(year, month, day, hour, minute, second)
+        except ValueError:
+            print("Invalid input. Please enter valid date and time values.")
+
 
 if __name__ == "__main__":
     main()
