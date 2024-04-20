@@ -12,7 +12,7 @@ class Content(Enum):
     HAPPY = "Best day ever! #happy"
     TECH = "Check out my new gear! #tech"
     WAVES = "Making waves #innovation #startups"
-    
+
     def get_random():
         return random.choice(list(Content)).value
 
@@ -35,6 +35,7 @@ class TreeNode:
 class SocialMedia:
     def __init__(self):
         self.posts_by_date = {}
+        self.posts_by_datetime = {}  # New hash table for posts by datetime
         self.root = None
         self.max_heap = []
         self.min_heap = []
@@ -43,6 +44,7 @@ class SocialMedia:
         author = f"user {len(self.posts_by_date) + 1}"
         post.author = author
         self.posts_by_date.setdefault(post.datetime.year, {}).setdefault(post.datetime.month, []).append(post)
+        self.posts_by_datetime[post.datetime] = post  # Add post to hash table
         self._insert_bst(post)
         heapq.heappush(self.max_heap, (-post.views, post.datetime, post))
         heapq.heappush(self.min_heap, (post.views, post.datetime, post))
@@ -92,12 +94,15 @@ class SocialMedia:
             print("No more posts to display.")
 
     def get_post_by_datetime(self, target_datetime):
-        if target_datetime.year in self.posts_by_date:
-            posts_in_year = [post for post in self.posts_by_date[target_datetime.year].values() if post.datetime.month == target_datetime.month]
-            for post in posts_in_year:
-                if post.datetime == target_datetime:
-                    return post
-        return None
+        return self.posts_by_datetime.get(target_datetime, None)  # Retrieve post from hash table when adding the post
+
+    def get_posts_in_range(self, start_year, end_year):
+        posts_in_range = []
+        for year in range(int(start_year), int(end_year) + 1):
+            if year in self.posts_by_date:
+                for month in self.posts_by_date[year]:
+                    posts_in_range.extend(self.posts_by_date[year][month])
+        return posts_in_range
 
     def get_random_post_by_year_month(self, year, month):
         if int(year) in self.posts_by_date and int(month) in self.posts_by_date[int(year)]:
@@ -106,13 +111,11 @@ class SocialMedia:
                 return random.choice(posts_in_month)
         return None
 
-
 def generate_random_datetime():
     start = datetime.strptime('2020-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
     end = datetime.now()
     random_datetime = start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
     return random_datetime
-
 
 def generate_random_views():
     return int(random.weibullvariate(1.5, 2) * 1000)
