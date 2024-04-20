@@ -12,8 +12,7 @@ class Content(Enum):
     HAPPY = "Best day ever! #happy"
     TECH = "Check out my new gear! #tech"
     WAVES = "Making waves #innovation #startups"
-
-    @staticmethod
+    
     def get_random():
         return random.choice(list(Content)).value
 
