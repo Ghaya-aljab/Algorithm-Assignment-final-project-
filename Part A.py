@@ -1,7 +1,7 @@
-import heapq
 import random
 from datetime import datetime, timedelta
 from enum import Enum
+import heapq
 
 class Content(Enum):
     LIFE = "Just living life #love"
@@ -13,6 +13,7 @@ class Content(Enum):
     TECH = "Check out my new gear! #tech"
     WAVES = "Making waves #innovation #startups"
 
+    @staticmethod
     def get_random():
         return random.choice(list(Content)).value
 
@@ -29,6 +30,7 @@ class Post:
 class TreeNode:
     def __init__(self, post):
         self.post = post
+        self.height = 1
         self.left = None
         self.right = None
 
@@ -47,27 +49,58 @@ class SocialMedia:
         post.author = author
         self.posts_by_date.setdefault(post.datetime.year, {}).setdefault(post.datetime.month, []).append(post)
         self.posts_by_datetime[post.datetime] = post
-        self._insert_bst(post)
+        self.root = self._insert_avl(self.root, post)
         heapq.heappush(self.max_heap, (-post.views, post.datetime, post))
         heapq.heappush(self.min_heap, (post.views, post.datetime, post))
 
-    def _insert_bst(self, post):
-        if not self.root:
-            self.root = TreeNode(post)
-        else:
-            self._bst_insert(self.root, post)
-
-    def _bst_insert(self, node, post):
+    def _insert_avl(self, node, post):
+        if not node:
+            return TreeNode(post)
         if post.datetime < node.post.datetime:
-            if not node.left:
-                node.left = TreeNode(post)
+            node.left = self._insert_avl(node.left, post)
+        else:
+            node.right = self._insert_avl(node.right, post)
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
+        return self._balance(node)
+
+    def _get_height(self, node):
+        if not node:
+            return 0
+        return node.height
+
+    def _balance(self, node):
+        balance_factor = self._get_height(node.left) - self._get_height(node.right)
+        if balance_factor > 1:
+            if self._get_height(node.left.left) >= self._get_height(node.left.right):
+                return self._right_rotate(node)
             else:
-                self._bst_insert(node.left, post)
-        elif post.datetime > node.post.datetime:
-            if not node.right:
-                node.right = TreeNode(post)
+                node.left = self._left_rotate(node.left)
+                return self._right_rotate(node)
+        if balance_factor < -1:
+            if self._get_height(node.right.right) >= self._get_height(node.right.left):
+                return self._left_rotate(node)
             else:
-                self._bst_insert(node.right, post)
+                node.right = self._right_rotate(node.right)
+                return self._left_rotate(node)
+        return node
+
+    def _left_rotate(self, z):
+        y = z.right
+        T2 = y.left
+        y.left = z
+        z.right = T2
+        z.height = 1 + max(self._get_height(z.left), self._get_height(z.right))
+        y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
+        return y
+
+    def _right_rotate(self, z):
+        y = z.left
+        T3 = y.right
+        y.right = z
+        z.left = T3
+        z.height = 1 + max(self._get_height(z.left), self._get_height(z.right))
+        y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
+        return y
 
     def get_most_viewed_post(self):
         if self.max_heap:
@@ -126,6 +159,7 @@ def generate_random_datetime():
 
 def generate_random_views():
     return random.randint(100, 100000)
+
 
 def main():
     sm = SocialMedia()
