@@ -159,7 +159,6 @@ def generate_random_datetime():
 def generate_random_views():
     return random.randint(100, 100000)
 
-
 def main():
     sm = SocialMedia()
     try:
@@ -248,11 +247,10 @@ def get_int_input(prompt):
 def get_datetime_input():
     while True:
         try:
-            date_str = input("Enter the date (YYYY-MM-DD): ")
-            time_str = input("Enter the time (HH:MM:SS): ")
-            return datetime.strptime(f"{date_str}T{time_str}", "%Y-%m-%dT%H:%M:%S")
+            datetime_str = input("Enter datetime: (YYYY-MM-DD) (HH:MM:SS) ")
+            return datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
         except ValueError:
-            print("Invalid input. Please enter valid date and time values.")
+            print("Invalid input. Please enter valid datetime values in the specified format.")
 
 if __name__ == "__main__":
     main()
