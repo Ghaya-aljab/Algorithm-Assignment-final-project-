@@ -22,10 +22,10 @@ class Graph:
         self.graph[source].append((destination, edge))
         self.graph[destination].append((source, edge))
 
-    def add_house(self, house_id, intersection, distance):
+    def add_house(self, house_id, intersection, road_id, distance):
         if intersection not in self.graph:
             self.add_vertex(intersection, intersection)
-        edge = {'id': 'virtual', 'name': 'virtual', 'length': distance, 'original_length': distance,
+        edge = {'id': road_id, 'name': 'virtual', 'length': distance, 'original_length': distance,
                 'congestion_level': 0}
         self.graph[house_id] = [(intersection, edge)]
         self.graph[intersection].append((house_id, edge))
@@ -91,8 +91,8 @@ def create_road_network():
     graph.add_edge('D', 'F', 'R7', 'Road 7', 2)
     graph.add_edge('E', 'F', 'R8', 'Road 8', 3)
 
-    graph.add_house('H1', 'B', 1)
-    graph.add_house('H2', 'E', 2)
+    graph.add_house('H1', 'B', 'R7', 1)
+    graph.add_house('H2', 'E','R4', 3)
 
     return graph
 
