@@ -45,6 +45,7 @@ class SocialMedia:
         self.max_heap = []
         self.min_heap = []
 
+     # Adds a post into various data structures.
     def add_post(self, post):
         if post.datetime in self.posts_by_datetime:
             raise ValueError("A post with the same datetime already exists.")
