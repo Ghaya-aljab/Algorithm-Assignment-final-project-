@@ -2,7 +2,7 @@ import random
 from datetime import datetime, timedelta
 from enum import Enum
 import heapq
-
+# Enumeration for content types with their respective captions and hashtags.
 class Content(Enum):
     LIFE = "Just living life #love"
     WORLD = "What a wonderful world #travel #blessed"
