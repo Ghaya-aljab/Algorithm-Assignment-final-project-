@@ -27,14 +27,16 @@ class Post:
 
     def __repr__(self):
         return f"({self.datetime}, '{self.content}', by {self.author}, views: {self.views})"
-
+        
+# Node class for AVL Tree, used for storing posts.
 class TreeNode:
     def __init__(self, post):
         self.post = post
         self.height = 1
         self.left = None
         self.right = None
-
+        
+# Main class for managing social media functionalities.
 class SocialMedia:
     def __init__(self):
         self.posts_by_date = {}
