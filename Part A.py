@@ -57,6 +57,7 @@ class SocialMedia:
         heapq.heappush(self.max_heap, (-post.views, post.datetime, post))
         heapq.heappush(self.min_heap, (post.views, post.datetime, post))
 
+     # Inserts a post in the AVL tree and balances it.
     def _insert_avl(self, node, post):
         if not node:
             return TreeNode(post)
