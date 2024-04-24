@@ -115,12 +115,14 @@ class SocialMedia:
         else:
             raise IndexError("No more posts to display.")
 
+
     def get_least_viewed_post(self):
         if self.min_heap:
             return heapq.heappop(self.min_heap)[2]
         else:
             raise IndexError("No more posts to display.")
 
+ # Retrieves the most popular posts using heaps.
     def view_posts_by_popularity(self):
         if not self.max_heap:
             raise IndexError("No more posts to display.")
@@ -157,7 +159,7 @@ class SocialMedia:
         if not posts_in_month:
             raise ValueError("No posts available in the specified month.")
         return random.choice(posts_in_month)
-
+#generates a random date and time 
 def generate_random_datetime():
     start = datetime.strptime('2020-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
     end = datetime.now()
@@ -166,7 +168,8 @@ def generate_random_datetime():
 
 def generate_random_views():
     return random.randint(100, 100000)
-
+    
+#main loop 
 def main():
     sm = SocialMedia()
     try:
