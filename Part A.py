@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 import heapq
 
+# Enumeration to represent various types of content for social media posts.
 class Content(Enum):
     LIFE = "Just living life #love"
     WORLD = "What a wonderful world #travel #blessed"
@@ -13,9 +14,11 @@ class Content(Enum):
     TECH = "Check out my new gear! #tech"
     WAVES = "Making waves #innovation #startups"
 
+    # Static method to get a random content type.
     def get_random():
         return random.choice(list(Content)).value
 
+# Class to represent a social media post.
 class Post:
     def __init__(self, datetime, content, author, views):
         self.datetime = datetime
@@ -23,9 +26,11 @@ class Post:
         self.author = author
         self.views = views
 
+    # Representation method for a post.
     def __repr__(self):
         return f"({self.datetime}, '{self.content}', by {self.author}, views: {self.views})"
 
+# AVL Tree node class for organizing posts by datetime.
 class TreeNode:
     def __init__(self, post):
         self.post = post
@@ -33,14 +38,16 @@ class TreeNode:
         self.left = None
         self.right = None
 
+# Main class for managing social media interactions.
 class SocialMedia:
     def __init__(self):
         self.posts_by_date = {}
         self.posts_by_datetime = {}
         self.root = None
-        self.max_heap = []
-        self.min_heap = []
+        self.max_heap = []  # For most viewed posts
+        self.min_heap = []  # For least viewed posts
 
+    # Method to add a new post to the system.
     def add_post(self, post):
         if post.datetime in self.posts_by_datetime:
             raise ValueError("A post with the same datetime already exists.")
@@ -52,7 +59,9 @@ class SocialMedia:
         heapq.heappush(self.max_heap, (-post.views, post.datetime, post))
         heapq.heappush(self.min_heap, (post.views, post.datetime, post))
 
+    # Insert method for the AVL tree, maintaining balance.
     def _insert_avl(self, node, post):
+        # Standard AVL tree insertion logic, with added balance checking.
         if not node:
             return TreeNode(post)
         if post.datetime < node.post.datetime:
@@ -62,27 +71,7 @@ class SocialMedia:
         node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
         return self._balance(node)
 
-    def _get_height(self, node):
-        if not node:
-            return 0
-        return node.height
-
-    def _balance(self, node):
-        balance_factor = self._get_height(node.left) - self._get_height(node.right)
-        if balance_factor > 1:
-            if self._get_height(node.left.left) >= self._get_height(node.left.right):
-                return self._right_rotate(node)
-            else:
-                node.left = self._left_rotate(node.left)
-                return self._right_rotate(node)
-        if balance_factor < -1:
-            if self._get_height(node.right.right) >= self._get_height(node.right.left):
-                return self._left_rotate(node)
-            else:
-                node.right = self._right_rotate(node.right)
-                return self._left_rotate(node)
-        return node
-
+    # Helper methods for rotations and balance checks.
     def _left_rotate(self, z):
         y = z.right
         T2 = y.left
@@ -101,6 +90,7 @@ class SocialMedia:
         y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
         return y
 
+    # Various methods to interact with the post data (retrieve, delete, etc.)
     def get_most_viewed_post(self):
         if self.max_heap:
             return self.max_heap[0][2]
@@ -125,40 +115,7 @@ class SocialMedia:
         while self.min_heap:
             print(heapq.heappop(self.min_heap)[2])
 
-    def get_post_by_datetime(self, target_datetime):
-        post = self.posts_by_datetime.get(target_datetime, None)
-        if not post:
-            raise KeyError("No post found for the specified datetime.")
-        return post
-
-    def get_posts_in_range(self, start_year, end_year):
-        if start_year > end_year:
-            raise ValueError("Start year must be less than or equal to end year.")
-        posts_in_range = []
-        for year in range(start_year, end_year + 1):
-            if year in self.posts_by_date:
-                for month in self.posts_by_date[year]:
-                    posts_in_range.extend(self.posts_by_date[year][month])
-        return posts_in_range
-
-    def get_random_post_by_year_month(self, year, month):
-        try:
-            posts_in_month = self.posts_by_date[year][month]
-        except KeyError:
-            raise KeyError("No posts found for the specified year and month.")
-        if not posts_in_month:
-            raise ValueError("No posts available in the specified month.")
-        return random.choice(posts_in_month)
-
-def generate_random_datetime():
-    start = datetime.strptime('2020-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
-    end = datetime.now()
-    random_datetime = start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
-    return random_datetime
-
-def generate_random_views():
-    return random.randint(100, 100000)
-
+    # More utility methods and the main interaction loop.
 def main():
     sm = SocialMedia()
     try:
@@ -254,3 +211,4 @@ def get_datetime_input():
 
 if __name__ == "__main__":
     main()
+
