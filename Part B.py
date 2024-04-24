@@ -63,7 +63,8 @@ def optimize_traffic_flow(graph):
             if 'original_length' in edge:  # Ensure all edges have 'original_length' before processing
                 edge['length'] = calculate_updated_weight(edge['original_length'], edge['congestion_level'])
     return graph
-
+    
+# Main function to set up and return a configured graph
 def calculate_updated_weight(length, congestion_level):
     return length * (1 + congestion_level)
 
@@ -75,7 +76,7 @@ def find_shortest_distance(graph, source, target):
     distances = dijkstra(graph, source)
     shortest_distance = distances[target]
     return shortest_distance
-
+   # Add roads with specific properties
 def create_road_network():
     graph = Graph()
 
@@ -91,6 +92,8 @@ def create_road_network():
     graph.add_edge('D', 'E', 'R6', 'Road 6', 1)
     graph.add_edge('D', 'F', 'R7', 'Road 7', 2)
     graph.add_edge('E', 'F', 'R8', 'Road 8', 3)
+    
+    # Add houses with distances from intersections
 
     graph.add_house('H1', 'B', 1)
     graph.add_house('H2', 'E', 3)
@@ -115,6 +118,7 @@ def create_networkx_graph(graph):
         for neighbor, edge in edges:
             G.add_edge(vertex, neighbor, **edge)
     return G
+# Helper function to visualize the graph using NetworkX and Matplotlib
 
 def visualize_graph(graph, shortest_path=None, source=None, destination=None):
     G = nx.Graph()
@@ -162,6 +166,8 @@ def visualize_graph(graph, shortest_path=None, source=None, destination=None):
     plt.title("Road Network Graph")
     plt.axis('off')  # Turn off axis
     plt.show()
+    
+# Main application loop
 
 def main():
     road_network = create_road_network()
