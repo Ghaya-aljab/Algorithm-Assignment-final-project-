@@ -107,7 +107,8 @@ class SocialMedia:
         z.height = 1 + max(self._get_height(z.left), self._get_height(z.right))
         y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
         return y
-
+        
+ # Retrieves the most and least viewed posts using heaps.
     def get_most_viewed_post(self):
         if self.max_heap:
             return self.max_heap[0][2]
