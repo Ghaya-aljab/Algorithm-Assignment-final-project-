@@ -89,6 +89,7 @@ class SocialMedia:
                 return self._left_rotate(node)
         return node
 
+       # Rotations for balancing the AVL tree.
     def _left_rotate(self, z):
         y = z.right
         T2 = y.left
