@@ -72,7 +72,7 @@ class SocialMedia:
         if not node:
             return 0
         return node.height
-
+ # Balances the AVL tree.
     def _balance(self, node):
         balance_factor = self._get_height(node.left) - self._get_height(node.right)
         if balance_factor > 1:
