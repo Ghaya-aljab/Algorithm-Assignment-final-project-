@@ -16,7 +16,8 @@ class Content(Enum):
     # Returns a random content type.
     def get_random():
         return random.choice(list(Content)).value
-
+        
+# Class representing a social media post.
 class Post:
     def __init__(self, datetime, content, author, views):
         self.datetime = datetime
