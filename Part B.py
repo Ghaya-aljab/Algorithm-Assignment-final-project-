@@ -2,27 +2,31 @@ import heapq
 import networkx as nx
 import matplotlib.pyplot as plt
 
+# Definition of the Graph class
 class Graph:
     def __init__(self):
-        self.graph = {}
-        self.vertices_info = {}
+        self.graph = {} # Stores the adjacency list of the graph
+        self.vertices_info = {} # Stores additional information about each vertex
 
+# Add a vertex to the graph if it's not already present
     def add_vertex(self, vertex, vertex_id):
         if vertex not in self.graph:
             self.graph[vertex] = []
             self.vertices_info[vertex] = {'id': vertex_id}
-
+            
+# Add an edge to the graph; ensure both vertices exist in the graph
     def add_edge(self, source, destination, road_id, road_name, length, congestion_level=0):
         if source not in self.graph:
             self.add_vertex(source, source)
         if destination not in self.graph:
             self.add_vertex(destination, destination)
-
+# Create an edge with attributes
         edge = {'id': road_id, 'name': road_name, 'length': length, 'congestion_level': congestion_level,
                 'original_length': length}
         self.graph[source].append((destination, edge))
         self.graph[destination].append((source, edge))
-
+        
+ # Special case of adding a 'house' as a vertex connected by a virtual edge
     def add_house(self, house_id, intersection, distance):
         if intersection not in self.graph:
             self.add_vertex(intersection, intersection)
@@ -31,12 +35,14 @@ class Graph:
         self.graph[intersection].append((house_id, edge))
 
     def get_neighbors(self, vertex):
+         # Return the neighbors of a vertex
         return self.graph.get(vertex, [])
 
+# Implementation of Dijkstra's algorithm for finding the shortest paths 
 def dijkstra(graph, source):
     distances = {vertex: float('inf') for vertex in graph.graph}
-    distances[source] = 0
-    priority_queue = [(0, source)]
+    distances[source] = 0 # Distance to the source is 0
+    priority_queue = [(0, source)] # Priority queue to pick the vertex with the smallest distance
 
     while priority_queue:
         current_distance, current_vertex = heapq.heappop(priority_queue)
@@ -49,6 +55,7 @@ def dijkstra(graph, source):
                 heapq.heappush(priority_queue, (distance, neighbor))
 
     return distances
+# Function to adjust edge weights based on traffic congestion
 
 def optimize_traffic_flow(graph):
     for vertex in graph.graph:
